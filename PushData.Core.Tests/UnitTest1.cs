@@ -11,7 +11,7 @@ public class DataSyncTests
         public string Id { get; set; }
         public string Value { get; set; }
     }
-    
+
     [Fact]
     public void CanSyncASingleNewItemToOneSink()
     {
@@ -20,7 +20,7 @@ public class DataSyncTests
             new Item() { Id = "A", Value = "A" }
         };
         var destinationData = new List<Item>();
-        
+
         var source = new Source(sourceData);
         var destination = new Destination(destinationData);
         var sut = new DataSync();
@@ -34,22 +34,37 @@ public class DataSync
 {
     public void Sync(Source source, Destination destination)
     {
-        throw new System.NotImplementedException();
+        var sourceData = source.GetData();
+        destination.ApplyChanges(sourceData);
     }
 }
 
 public class Destination
 {
+    private readonly List<DataSyncTests.Item> _destinationData;
+
     public Destination(List<DataSyncTests.Item> destinationData)
     {
-        throw new System.NotImplementedException();
+        _destinationData = destinationData;
+    }
+
+    public void ApplyChanges(IEnumerable<DataSyncTests.Item> sourceData)
+    {
+        _destinationData.AddRange(sourceData);
     }
 }
 
 public class Source
 {
+    private readonly List<DataSyncTests.Item> _sourceData;
+
     public Source(List<DataSyncTests.Item> sourceData)
     {
-        throw new System.NotImplementedException();
+        _sourceData = sourceData;
+    }
+
+    public IEnumerable<DataSyncTests.Item> GetData()
+    {
+        return _sourceData;
     }
 }
