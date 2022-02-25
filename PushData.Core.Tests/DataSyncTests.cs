@@ -17,7 +17,7 @@ public class DataSyncTests
         var destinationData = new List<ItemOne>();
 
         var source = new ListSource<ItemOne>(sourceData);
-        var destination = new ListDestination<ItemOne>(destinationData);
+        var destination = new ListDestination<ItemOne, string>(destinationData, i => i.Id);
         var sut = new DataSync();
         sut.Sync(source, destination);
 
@@ -34,7 +34,7 @@ public class DataSyncTests
         var destinationData = new List<ItemTwo>();
 
         var source = new ListSource<ItemTwo>(sourceData);
-        var destination = new ListDestination<ItemTwo>(destinationData);
+        var destination = new ListDestination<ItemTwo, string>(destinationData, i => i.Id);
         var sut = new DataSync();
         sut.Sync(source, destination);
 
@@ -54,7 +54,7 @@ public class DataSyncTests
 
         var innerSource =  new ListSource<ItemOne>(sourceData);
         var source = new FilterSource<ItemOne>(innerSource, i => i.Id == "A");
-        var destination = new ListDestination<ItemOne>(destinationData);
+        var destination = new ListDestination<ItemOne, string>(destinationData, i => i.Id);
         var sut = new DataSync();
         sut.Sync(source, destination);
 
@@ -72,7 +72,7 @@ public class DataSyncTests
         var destinationData = new List<ItemTwo>();
 
         var source =  new ListSource<ItemOne>(sourceData);
-        var destination = new ListDestination<ItemTwo>(destinationData);
+        var destination = new ListDestination<ItemTwo, string>(destinationData, i => i.Id);
         var mapToDestination = new MapDestination<ItemOne, ItemTwo>(destination, i => new ItemTwo() { Id = i.Id, Value = i.Value + " Mapped" });
         var sut = new DataSync();
         sut.Sync(source, mapToDestination);
@@ -91,7 +91,7 @@ public class DataSyncTests
         var destinationData = new List<ItemTwo>();
 
         var source =  new ListSource<ItemOne>(sourceData);
-        var destination = new ListDestination<ItemTwo>(destinationData);
+        var destination = new ListDestination<ItemTwo, string>(destinationData, i => i.Id);
         var filterDestination = new FilterDestination<ItemTwo>(destination, i => i.Id == "A");
         var mapToDestination = new MapDestination<ItemOne, ItemTwo>(filterDestination, i => new ItemTwo() { Id = i.Id, Value = i.Value + " Mapped" });
         
@@ -100,5 +100,26 @@ public class DataSyncTests
 
         Assert.Single(destinationData);
         Assert.Single(destinationData, d => d.Id == "A" && d.Value == "A Mapped");
+    }
+    
+    [Fact]
+    public void CanSyncASingleUpdatedItemToOneSink_ItemOneType()
+    {
+        var sourceData = new List<ItemOne>()
+        {
+            new ItemOne() { Id = "A", Value = "A.1" }
+        };
+        var destinationData = new List<ItemOne>()
+        {
+            new ItemOne() { Id = "A", Value = "A.0" }
+        };
+
+        var source = new ListSource<ItemOne>(sourceData);
+        var destination = new ListDestination<ItemOne, string>(destinationData, i => i.Id);
+        var sut = new DataSync();
+        sut.Sync(source, destination);
+
+        Assert.Single(destinationData);
+        Assert.Single(destinationData, d => d.Id == "A" && d.Value == "A.1");
     }
 }
