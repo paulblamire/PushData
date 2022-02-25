@@ -1,12 +1,18 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace PushData.Core.Tests;
 
-public class Destination<TItem>
+public interface IDestination<in TItem>
+{
+    void ApplyChanges(IEnumerable<TItem> sourceData);
+}
+
+public class ListDestination<TItem> : IDestination<TItem>
 {
     private readonly List<TItem> _destinationData;
 
-    public Destination(List<TItem> destinationData)
+    public ListDestination(List<TItem> destinationData)
     {
         _destinationData = destinationData;
     }

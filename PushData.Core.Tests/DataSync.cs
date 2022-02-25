@@ -2,7 +2,7 @@
 
 public class DataSync
 {
-    public void Sync<T>(ISource<T> source, Destination<T> destination)
+    public void Sync<T>(ISource<T> source, IDestination<T> destination)
     {
         var sourceData = source.GetData();
         destination.ApplyChanges(sourceData);

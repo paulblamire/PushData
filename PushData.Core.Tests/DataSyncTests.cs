@@ -61,4 +61,23 @@ public class DataSyncTests
         Assert.Single(destinationData);
         Assert.Single(destinationData, d => d.Id == "A" && d.Value == "A");
     }
+    
+    public void CanMapToADifferentDestinationType()
+    {
+        var sourceData = new List<ItemOne>()
+        {
+            new ItemOne() { Id = "A", Value = "A" },
+            new ItemOne() { Id = "B", Value = "B" }
+
+        };
+        var destinationData = new List<ItemTwo>();
+
+        var source =  new ListSource<ItemOne>(sourceData);
+        var destination = new Destination<ItemTwo>(destinationData);
+        var sut = new DataSync();
+        sut.Sync(source, destination);
+
+        Assert.Single(destinationData);
+        Assert.Single(destinationData, d => d.Id == "A" && d.Value == "A");
+    }
 }
