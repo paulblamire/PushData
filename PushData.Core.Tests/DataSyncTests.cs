@@ -8,16 +8,16 @@ public class DataSyncTests
 {
    
     [Fact]
-    public void CanSyncASingleNewItemToOneSink()
+    public void CanSyncASingleNewItemToOneSink_ItemOneType()
     {
-        var sourceData = new List<Item>()
+        var sourceData = new List<ItemOne>()
         {
-            new Item() { Id = "A", Value = "A" }
+            new ItemOne() { Id = "A", Value = "A" }
         };
-        var destinationData = new List<Item>();
+        var destinationData = new List<ItemOne>();
 
-        var source = new Source<Item>(sourceData);
-        var destination = new Destination<Item>(destinationData);
+        var source = new Source<ItemOne>(sourceData);
+        var destination = new Destination<ItemOne>(destinationData);
         var sut = new DataSync();
         sut.Sync(source, destination);
 
