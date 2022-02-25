@@ -12,6 +12,12 @@ public class DataSyncTests
         public string Value { get; set; }
     }
 
+    public class ItemTwo
+    {
+        public string Id { get; set; }
+        public string Value { get; set; }
+    }
+
     [Fact]
     public void CanSyncASingleNewItemToOneSink()
     {
@@ -21,8 +27,25 @@ public class DataSyncTests
         };
         var destinationData = new List<Item>();
 
-        var source = new Source(sourceData);
-        var destination = new Destination(destinationData);
+        var source = new Source<Item>(sourceData);
+        var destination = new Destination<Item>(destinationData);
+        var sut = new DataSync();
+        sut.Sync(source, destination);
+
+        Assert.Contains(destinationData, d => d.Id == "A" && d.Value == "A");
+    }
+    
+    [Fact]
+    public void CanSyncASingleNewItemToOneSink_ItemTwoType()
+    {
+        var sourceData = new List<ItemTwo>()
+        {
+            new ItemTwo() { Id = "A", Value = "A" }
+        };
+        var destinationData = new List<ItemTwo>();
+
+        var source = new Source<ItemTwo>(sourceData);
+        var destination = new Destination<ItemTwo>(destinationData);
         var sut = new DataSync();
         sut.Sync(source, destination);
 
@@ -32,38 +55,38 @@ public class DataSyncTests
 
 public class DataSync
 {
-    public void Sync(Source source, Destination destination)
+    public void Sync<T>(Source<T> source, Destination<T> destination)
     {
         var sourceData = source.GetData();
         destination.ApplyChanges(sourceData);
     }
 }
 
-public class Destination
+public class Destination<TItem>
 {
-    private readonly List<DataSyncTests.Item> _destinationData;
+    private readonly List<TItem> _destinationData;
 
-    public Destination(List<DataSyncTests.Item> destinationData)
+    public Destination(List<TItem> destinationData)
     {
         _destinationData = destinationData;
     }
 
-    public void ApplyChanges(IEnumerable<DataSyncTests.Item> sourceData)
+    public void ApplyChanges(IEnumerable<TItem> sourceData)
     {
         _destinationData.AddRange(sourceData);
     }
 }
 
-public class Source
+public class Source<TItem>
 {
-    private readonly List<DataSyncTests.Item> _sourceData;
+    private readonly List<TItem> _sourceData;
 
-    public Source(List<DataSyncTests.Item> sourceData)
+    public Source(List<TItem> sourceData)
     {
         _sourceData = sourceData;
     }
 
-    public IEnumerable<DataSyncTests.Item> GetData()
+    public IEnumerable<TItem> GetData()
     {
         return _sourceData;
     }
