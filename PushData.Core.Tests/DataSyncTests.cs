@@ -17,7 +17,7 @@ public class DataSyncTests
         var destinationData = new List<ItemOne>();
 
         var source = new ListSource<ItemOne>(sourceData);
-        var destination = new Destination<ItemOne>(destinationData);
+        var destination = new ListDestination<ItemOne>(destinationData);
         var sut = new DataSync();
         sut.Sync(source, destination);
 
@@ -34,7 +34,7 @@ public class DataSyncTests
         var destinationData = new List<ItemTwo>();
 
         var source = new ListSource<ItemTwo>(sourceData);
-        var destination = new Destination<ItemTwo>(destinationData);
+        var destination = new ListDestination<ItemTwo>(destinationData);
         var sut = new DataSync();
         sut.Sync(source, destination);
 
@@ -54,7 +54,7 @@ public class DataSyncTests
 
         var innerSource =  new ListSource<ItemOne>(sourceData);
         var source = new FilterSource<ItemOne>(innerSource, i => i.Id == "A");
-        var destination = new Destination<ItemOne>(destinationData);
+        var destination = new ListDestination<ItemOne>(destinationData);
         var sut = new DataSync();
         sut.Sync(source, destination);
 
@@ -62,22 +62,21 @@ public class DataSyncTests
         Assert.Single(destinationData, d => d.Id == "A" && d.Value == "A");
     }
     
+    [Fact]
     public void CanMapToADifferentDestinationType()
     {
         var sourceData = new List<ItemOne>()
         {
             new ItemOne() { Id = "A", Value = "A" },
-            new ItemOne() { Id = "B", Value = "B" }
-
         };
         var destinationData = new List<ItemTwo>();
 
         var source =  new ListSource<ItemOne>(sourceData);
-        var destination = new Destination<ItemTwo>(destinationData);
+        var destination = new ListDestination<ItemTwo>(destinationData);
+        var mapToDestination = new MapDestination<ItemOne, ItemTwo>(destination, i => new ItemTwo() { Id = i.Id, Value = i.Value + " Mapped" });
         var sut = new DataSync();
-        sut.Sync(source, destination);
-
-        Assert.Single(destinationData);
-        Assert.Single(destinationData, d => d.Id == "A" && d.Value == "A");
+        sut.Sync(source, mapToDestination);
+        
+        Assert.Single(destinationData, d => d.Id == "A" && d.Value == "A Mapped");
     }
 }
