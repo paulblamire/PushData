@@ -122,4 +122,30 @@ public class DataSyncTests
         Assert.Single(destinationData);
         Assert.Single(destinationData, d => d.Id == "A" && d.Value == "A.1");
     }
+    
+    [Fact]
+    public void CanSyncMultipleChanges()
+    {
+        var sourceData = new List<ItemOne>()
+        {
+            new ItemOne() { Id = "A", Value = "A.1" },
+            new ItemOne() { Id = "B", Value = "B.1" },
+            new ItemOne() { Id = "C", Value = "C.0" }
+        };
+        var destinationData = new List<ItemOne>()
+        {
+            new ItemOne() { Id = "A", Value = "A.0" },
+            new ItemOne() { Id = "B", Value = "B.0" }
+        };
+
+        var source = new ListSource<ItemOne>(sourceData);
+        var destination = new ListDestination<ItemOne, string>(destinationData, i => i.Id);
+        var sut = new DataSync();
+        sut.Sync(source, destination);
+
+        Assert.Equal(3,destinationData.Count);
+        Assert.Single(destinationData, d => d.Id == "A" && d.Value == "A.1");
+        Assert.Single(destinationData, d => d.Id == "B" && d.Value == "B.1");
+        Assert.Single(destinationData, d => d.Id == "C" && d.Value == "C.0");
+    }
 }
