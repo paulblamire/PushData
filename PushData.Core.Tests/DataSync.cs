@@ -2,9 +2,12 @@
 
 public class DataSync
 {
-    public void Sync<T>(ISource<T> source, IDestination<T> destination)
+    public void Sync<T>(ISource<T> source, params IDestination<T>[] destinations)
     {
         var sourceData = source.GetData();
-        destination.ApplyChanges(sourceData);
+        foreach (var destination in destinations)
+        {
+            destination.ApplyChanges(sourceData);
+        }
     }
 }

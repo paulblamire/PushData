@@ -148,4 +148,45 @@ public class DataSyncTests
         Assert.Single(destinationData, d => d.Id == "B" && d.Value == "B.1");
         Assert.Single(destinationData, d => d.Id == "C" && d.Value == "C.0");
     }
+    
+    [Fact]
+    public void CanSyncMultipleChangesToMultipleDestinations()
+    {
+        var sourceData = new List<ItemOne>()
+        {
+            new ItemOne() { Id = "A", Value = "A.1" },
+            new ItemOne() { Id = "B", Value = "B.1" },
+            new ItemOne() { Id = "C", Value = "C.0" }
+        };
+        var destinationDataOne = new List<ItemOne>()
+        {
+            new ItemOne() { Id = "A", Value = "A.0" },
+            new ItemOne() { Id = "B", Value = "B.0" }
+        };
+        
+        var destinationDataTwo = new List<ItemTwo>()
+        {
+            new ItemTwo() { Id = "B", Value = "B.0" },
+            new ItemTwo() { Id = "C", Value = "C.0" }
+        };
+
+        var source = new ListSource<ItemOne>(sourceData);
+        var destinationOne = new ListDestination<ItemOne, string>(destinationDataOne, i => i.Id);
+        
+        var destinationTwo = new ListDestination<ItemTwo, string>(destinationDataTwo, i => i.Id);
+        var mapToDestinationTwo = new MapDestination<ItemOne, ItemTwo>(destinationTwo, i => new ItemTwo() { Id = i.Id, Value = i.Value + " Mapped" });
+
+        var sut = new DataSync();
+        sut.Sync(source, destinationOne, mapToDestinationTwo);
+
+        Assert.Equal(3,destinationDataOne.Count);
+        Assert.Single(destinationDataOne, d => d.Id == "A" && d.Value == "A.1");
+        Assert.Single(destinationDataOne, d => d.Id == "B" && d.Value == "B.1");
+        Assert.Single(destinationDataOne, d => d.Id == "C" && d.Value == "C.0");
+        
+        Assert.Equal(3,destinationDataTwo.Count);
+        Assert.Single(destinationDataTwo, d => d.Id == "A" && d.Value == "A.1 Mapped");
+        Assert.Single(destinationDataTwo, d => d.Id == "B" && d.Value == "B.1 Mapped");
+        Assert.Single(destinationDataTwo, d => d.Id == "C" && d.Value == "C.0 Mapped");
+    }
 }
