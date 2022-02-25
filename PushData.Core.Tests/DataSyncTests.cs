@@ -1,23 +1,12 @@
 using System.Collections.Generic;
-using System.Diagnostics;
+using PushData.Core.Tests.ExampleTypes;
 using Xunit;
 
 namespace PushData.Core.Tests;
 
 public class DataSyncTests
 {
-    public class Item
-    {
-        public string Id { get; set; }
-        public string Value { get; set; }
-    }
-
-    public class ItemTwo
-    {
-        public string Id { get; set; }
-        public string Value { get; set; }
-    }
-
+   
     [Fact]
     public void CanSyncASingleNewItemToOneSink()
     {
@@ -50,44 +39,5 @@ public class DataSyncTests
         sut.Sync(source, destination);
 
         Assert.Contains(destinationData, d => d.Id == "A" && d.Value == "A");
-    }
-}
-
-public class DataSync
-{
-    public void Sync<T>(Source<T> source, Destination<T> destination)
-    {
-        var sourceData = source.GetData();
-        destination.ApplyChanges(sourceData);
-    }
-}
-
-public class Destination<TItem>
-{
-    private readonly List<TItem> _destinationData;
-
-    public Destination(List<TItem> destinationData)
-    {
-        _destinationData = destinationData;
-    }
-
-    public void ApplyChanges(IEnumerable<TItem> sourceData)
-    {
-        _destinationData.AddRange(sourceData);
-    }
-}
-
-public class Source<TItem>
-{
-    private readonly List<TItem> _sourceData;
-
-    public Source(List<TItem> sourceData)
-    {
-        _sourceData = sourceData;
-    }
-
-    public IEnumerable<TItem> GetData()
-    {
-        return _sourceData;
     }
 }
