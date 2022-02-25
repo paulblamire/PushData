@@ -97,7 +97,8 @@ public class DataSyncTests
         
         var sut = new DataSync();
         sut.Sync(source, mapToDestination);
-        
+
+        Assert.Single(destinationData);
         Assert.Single(destinationData, d => d.Id == "A" && d.Value == "A Mapped");
     }
 }
