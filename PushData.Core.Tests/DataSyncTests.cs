@@ -79,4 +79,25 @@ public class DataSyncTests
         
         Assert.Single(destinationData, d => d.Id == "A" && d.Value == "A Mapped");
     }
+    
+    [Fact]
+    public void CanFilterDestinationItems()
+    {
+        var sourceData = new List<ItemOne>()
+        {
+            new ItemOne() { Id = "A", Value = "A" },
+            new ItemOne() { Id = "B", Value = "B" },
+        };
+        var destinationData = new List<ItemTwo>();
+
+        var source =  new ListSource<ItemOne>(sourceData);
+        var destination = new ListDestination<ItemTwo>(destinationData);
+        var filterDestination = new FilterDestination<ItemTwo>(destination, i => i.Id == "A");
+        var mapToDestination = new MapDestination<ItemOne, ItemTwo>(filterDestination, i => new ItemTwo() { Id = i.Id, Value = i.Value + " Mapped" });
+        
+        var sut = new DataSync();
+        sut.Sync(source, mapToDestination);
+        
+        Assert.Single(destinationData, d => d.Id == "A" && d.Value == "A Mapped");
+    }
 }
