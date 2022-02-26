@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using PushData.Core.BasicTransforms;
+using PushData.Core.InMemory;
 using PushData.Core.Tests.ExampleTypes;
 using Xunit;
 

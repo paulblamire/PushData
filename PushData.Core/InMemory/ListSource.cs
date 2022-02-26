@@ -1,4 +1,4 @@
-﻿namespace PushData.Core;
+﻿namespace PushData.Core.InMemory;
 
 public class ListSource<TItem> : ISource<TItem>
 {

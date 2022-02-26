@@ -1,4 +1,4 @@
-﻿namespace PushData.Core;
+﻿namespace PushData.Core.BasicTransforms;
 
 public class MapDestination<TItemIn, TItemOut> : IDestination<TItemIn>
 {

@@ -1,6 +1,6 @@
 ﻿using System.Data.Entity;
 
-namespace PushData.Core;
+namespace PushData.Core.Database;
 
 public class DbSetDestination<TItem, TKey> : IDestination<TItem> where TKey : notnull where TItem : class
 {

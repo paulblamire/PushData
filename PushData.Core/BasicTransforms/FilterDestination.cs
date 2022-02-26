@@ -1,23 +1,4 @@
-﻿using System.Linq.Expressions;
-
-namespace PushData.Core;
-
-public class FilterSource<TItem> : ISource<TItem>
-{
-    private readonly ISource<TItem> _inner;
-    private readonly Expression<Func<TItem, bool>> _predicate;
-
-    public FilterSource(ISource<TItem> inner, Expression<Func<TItem, bool>> predicate)
-    {
-        _inner = inner;
-        _predicate = predicate;
-    }
-    
-    public IQueryable<TItem> GetData()
-    {
-        return _inner.GetData().Where(_predicate);
-    }
-}
+﻿namespace PushData.Core.BasicTransforms;
 
 public class FilterDestination<TItem> : IDestination<TItem>
 {
@@ -34,4 +15,4 @@ public class FilterDestination<TItem> : IDestination<TItem>
         var filtered = sourceData.Where(_predicate);
         _nextDestination.ApplyChanges(filtered);
     }
-} 
+}

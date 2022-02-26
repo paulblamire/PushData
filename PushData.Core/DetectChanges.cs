@@ -1,6 +1,6 @@
 ﻿namespace PushData.Core;
 
-public class DetectChanges<TItem, TKey> where TKey : notnull
+internal class DetectChanges<TItem, TKey> where TKey : notnull
 {
     private readonly Func<TItem, TKey> _getKey;
 

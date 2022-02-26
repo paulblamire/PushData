@@ -1,6 +1,6 @@
 ﻿using System.Data.Entity;
 
-namespace PushData.Core;
+namespace PushData.Core.Database;
 
 public class DbSetSource<TItem> : ISource<TItem> where TItem : class
 {

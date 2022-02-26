@@ -1,4 +1,4 @@
-﻿namespace PushData.Core;
+﻿namespace PushData.Core.InMemory;
 
 public class ListDestination<TItem, TKey> : IDestination<TItem> where TKey : notnull
 {
