@@ -4,26 +4,28 @@ public class ListDestination<TItem, TKey> : IDestination<TItem> where TKey : not
 {
     private readonly List<TItem> _destinationData;
     private readonly Func<TItem, TKey> _getKey;
-    private readonly DetectChanges<TItem, TKey> _detectChanges;
 
     public ListDestination(List<TItem> destinationData, Func<TItem, TKey> getKey)
     {
         _destinationData = destinationData;
         _getKey = getKey;
-        _detectChanges = new DetectChanges<TItem, TKey>(getKey);
     }
 
     public void ApplyChanges(IEnumerable<TItem> sourceData)
     {
-        _detectChanges.Process(sourceData, _destinationData,
-            items =>
+        var dict = _destinationData.ToDictionary(_getKey, i => i);
+        foreach (var item in sourceData)
+        {
+            var key = _getKey(item);
+            if (dict.TryGetValue(key, out var existingItem))
             {
-                _destinationData.AddRange(items);
-            },
-            (k, i) =>
+                _destinationData.Remove(existingItem);
+                _destinationData.Add(item);
+            }
+            else
             {
-                _destinationData.RemoveAll(u => Equals(k, _getKey(u)));
-                _destinationData.Add(i);
-            });
+                _destinationData.Add(item);
+            }
+        }
     }
 }
