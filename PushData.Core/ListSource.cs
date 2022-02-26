@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace PushData.Core.Tests;
+﻿namespace PushData.Core;
 
 public class ListSource<TItem> : ISource<TItem>
 {

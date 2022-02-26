@@ -1,4 +1,4 @@
-﻿namespace PushData.Core.Tests;
+﻿namespace PushData.Core;
 
 public class DataSync
 {

@@ -1,7 +1,6 @@
 ﻿using System.Data.Entity;
-using System.Linq;
 
-namespace PushData.Core.Tests;
+namespace PushData.Core;
 
 public class DbSetSource<TItem> : ISource<TItem> where TItem : class
 {

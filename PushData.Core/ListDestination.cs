@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace PushData.Core.Tests;
+﻿namespace PushData.Core;
 
 public class ListDestination<TItem, TKey> : IDestination<TItem> where TKey : notnull
 {

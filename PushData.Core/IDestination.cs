@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace PushData.Core.Tests;
+﻿namespace PushData.Core;
 
 public interface IDestination<in TItem>
 {

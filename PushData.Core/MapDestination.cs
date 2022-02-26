@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace PushData.Core.Tests;
+﻿namespace PushData.Core;
 
 public class MapDestination<TItemIn, TItemOut> : IDestination<TItemIn>
 {

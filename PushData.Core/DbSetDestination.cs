@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity;
+﻿using System.Data.Entity;
 
-namespace PushData.Core.Tests;
+namespace PushData.Core;
 
 public class DbSetDestination<TItem, TKey> : IDestination<TItem> where TKey : notnull where TItem : class
 {

@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace PushData.Core.Tests;
+﻿namespace PushData.Core;
 
 public interface ISource<out TItem>
 {
