@@ -2,13 +2,13 @@
 
 namespace PushData.Core.Database;
 
-public class DbSetDestination<TItem, TKey> : IDestination<TItem> where TKey : notnull where TItem : class
+public class DbSetDestination<TItem> : IDestination<TItem> where TItem : class
 {
     private readonly DbSet<TItem> _destinationData;
-    private readonly Func<TItem, TKey> _getKey;
+    private readonly Func<TItem, object[]> _getKey;
     private readonly DbContext _dbContext;
 
-    public DbSetDestination(DbContext dbContext, Func<TItem, TKey> getKey)
+    public DbSetDestination(DbContext dbContext, Func<TItem, object[]> getKey)
     {
         _dbContext = dbContext;
         _destinationData = dbContext.Set<TItem>();
