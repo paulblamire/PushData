@@ -1,14 +1,19 @@
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Data.Entity;
+using System.Linq;
 using PushData.Core.BasicTransforms;
+using PushData.Core.Database;
 using PushData.Core.InMemory;
 using PushData.Core.Tests.ExampleTypes;
+using PushData.Core.Tests.TestDoubles;
 using Xunit;
 
 namespace PushData.Core.Tests;
 
 public class DataSyncTests
 {
-   
     [Fact]
     public void CanSyncASingleNewItemToOneSink_ItemOneType()
     {
@@ -25,7 +30,7 @@ public class DataSyncTests
 
         Assert.Contains(destinationData, d => d.Id == "A" && d.Value == "A");
     }
-    
+
     [Fact]
     public void CanSyncASingleNewItemToOneSink_ItemTwoType()
     {
@@ -42,7 +47,7 @@ public class DataSyncTests
 
         Assert.Contains(destinationData, d => d.Id == "A" && d.Value == "A");
     }
-    
+
     [Fact]
     public void CanFilterSourceItems()
     {
@@ -50,11 +55,10 @@ public class DataSyncTests
         {
             new ItemOne() { Id = "A", Value = "A" },
             new ItemOne() { Id = "B", Value = "B" }
-
         };
         var destinationData = new List<ItemOne>();
 
-        var innerSource =  new ListSource<ItemOne>(sourceData);
+        var innerSource = new ListSource<ItemOne>(sourceData);
         var source = new FilterSource<ItemOne>(innerSource, i => i.Id == "A");
         var destination = new ListDestination<ItemOne, string>(destinationData, i => i.Id);
         var sut = new DataSync();
@@ -63,7 +67,7 @@ public class DataSyncTests
         Assert.Single(destinationData);
         Assert.Single(destinationData, d => d.Id == "A" && d.Value == "A");
     }
-    
+
     [Fact]
     public void CanMapToADifferentDestinationType()
     {
@@ -73,15 +77,16 @@ public class DataSyncTests
         };
         var destinationData = new List<ItemTwo>();
 
-        var source =  new ListSource<ItemOne>(sourceData);
+        var source = new ListSource<ItemOne>(sourceData);
         var destination = new ListDestination<ItemTwo, string>(destinationData, i => i.Id);
-        var mapToDestination = new MapDestination<ItemOne, ItemTwo>(destination, i => new ItemTwo() { Id = i.Id, Value = i.Value + " Mapped" });
+        var mapToDestination = new MapDestination<ItemOne, ItemTwo>(destination,
+            i => new ItemTwo() { Id = i.Id, Value = i.Value + " Mapped" });
         var sut = new DataSync();
         sut.Sync(source, mapToDestination);
-        
+
         Assert.Single(destinationData, d => d.Id == "A" && d.Value == "A Mapped");
     }
-    
+
     [Fact]
     public void CanFilterDestinationItems()
     {
@@ -92,18 +97,19 @@ public class DataSyncTests
         };
         var destinationData = new List<ItemTwo>();
 
-        var source =  new ListSource<ItemOne>(sourceData);
+        var source = new ListSource<ItemOne>(sourceData);
         var destination = new ListDestination<ItemTwo, string>(destinationData, i => i.Id);
         var filterDestination = new FilterDestination<ItemTwo>(destination, i => i.Id == "A");
-        var mapToDestination = new MapDestination<ItemOne, ItemTwo>(filterDestination, i => new ItemTwo() { Id = i.Id, Value = i.Value + " Mapped" });
-        
+        var mapToDestination = new MapDestination<ItemOne, ItemTwo>(filterDestination,
+            i => new ItemTwo() { Id = i.Id, Value = i.Value + " Mapped" });
+
         var sut = new DataSync();
         sut.Sync(source, mapToDestination);
 
         Assert.Single(destinationData);
         Assert.Single(destinationData, d => d.Id == "A" && d.Value == "A Mapped");
     }
-    
+
     [Fact]
     public void CanSyncASingleUpdatedItemToOneSink_ItemOneType()
     {
@@ -124,7 +130,7 @@ public class DataSyncTests
         Assert.Single(destinationData);
         Assert.Single(destinationData, d => d.Id == "A" && d.Value == "A.1");
     }
-    
+
     [Fact]
     public void CanSyncMultipleChanges()
     {
@@ -145,12 +151,12 @@ public class DataSyncTests
         var sut = new DataSync();
         sut.Sync(source, destination);
 
-        Assert.Equal(3,destinationData.Count);
+        Assert.Equal(3, destinationData.Count);
         Assert.Single(destinationData, d => d.Id == "A" && d.Value == "A.1");
         Assert.Single(destinationData, d => d.Id == "B" && d.Value == "B.1");
         Assert.Single(destinationData, d => d.Id == "C" && d.Value == "C.0");
     }
-    
+
     [Fact]
     public void CanSyncMultipleChangesToMultipleDestinations()
     {
@@ -165,7 +171,7 @@ public class DataSyncTests
             new ItemOne() { Id = "A", Value = "A.0" },
             new ItemOne() { Id = "B", Value = "B.0" }
         };
-        
+
         var destinationDataTwo = new List<ItemTwo>()
         {
             new ItemTwo() { Id = "B", Value = "B.0" },
@@ -174,21 +180,48 @@ public class DataSyncTests
 
         var source = new ListSource<ItemOne>(sourceData);
         var destinationOne = new ListDestination<ItemOne, string>(destinationDataOne, i => i.Id);
-        
+
         var destinationTwo = new ListDestination<ItemTwo, string>(destinationDataTwo, i => i.Id);
-        var mapToDestinationTwo = new MapDestination<ItemOne, ItemTwo>(destinationTwo, i => new ItemTwo() { Id = i.Id, Value = i.Value + " Mapped" });
+        var mapToDestinationTwo = new MapDestination<ItemOne, ItemTwo>(destinationTwo,
+            i => new ItemTwo() { Id = i.Id, Value = i.Value + " Mapped" });
 
         var sut = new DataSync();
         sut.Sync(source, destinationOne, mapToDestinationTwo);
 
-        Assert.Equal(3,destinationDataOne.Count);
+        Assert.Equal(3, destinationDataOne.Count);
         Assert.Single(destinationDataOne, d => d.Id == "A" && d.Value == "A.1");
         Assert.Single(destinationDataOne, d => d.Id == "B" && d.Value == "B.1");
         Assert.Single(destinationDataOne, d => d.Id == "C" && d.Value == "C.0");
-        
-        Assert.Equal(3,destinationDataTwo.Count);
+
+        Assert.Equal(3, destinationDataTwo.Count);
         Assert.Single(destinationDataTwo, d => d.Id == "A" && d.Value == "A.1 Mapped");
         Assert.Single(destinationDataTwo, d => d.Id == "B" && d.Value == "B.1 Mapped");
         Assert.Single(destinationDataTwo, d => d.Id == "C" && d.Value == "C.0 Mapped");
+    }
+    
+    [Fact]
+    public void CanSyncMultipleChangesToADbSet()
+    {
+        var sourceData = new List<ItemOne>()
+        {
+            new ItemOne() { Id = "A", Value = "A.1" },
+            new ItemOne() { Id = "B", Value = "B.1" },
+            new ItemOne() { Id = "C", Value = "C.0" }
+        };
+
+        var db = new ItemsDbContext();
+        db.Items.Attach(new ItemOne() { Id = "A", Value = "A.0" });
+        db.Items.Attach(new ItemOne() { Id = "B", Value = "B.0" });
+
+        var source = new ListSource<ItemOne>(sourceData);
+        var destination = new DbSetDestination<ItemOne, string>(db, db.Items, i => i.Id);
+        
+        var sut = new DataSync();
+        sut.Sync(source, destination);
+
+        Assert.Equal(3, db.Items.Local.Count);
+        Assert.Single(db.Items, d => d.Id == "A" && d.Value == "A.1");
+        Assert.Single(db.Items, d => d.Id == "B" && d.Value == "B.1");
+        Assert.Single(db.Items, d => d.Id == "C" && d.Value == "C.0");
     }
 }
